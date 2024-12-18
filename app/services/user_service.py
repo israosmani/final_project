@@ -174,3 +174,16 @@ class UserService:
             await session.commit()
             return True
         return False
+
+    @classmethod
+    async def upgrade_to_professional(cls, session: AsyncSession, user_id: UUID) -> Optional[User]:
+        """Upgrades a user to professional status."""
+        user = await cls.get_by_id(session, user_id)
+        if user:
+            user.role = UserRole.PROFESSIONAL  # Assuming this is the enum value for professional users
+            session.add(user)
+            await session.commit()
+            logger.info(f"User {user_id} upgraded to PROFESSIONAL.")
+            return user
+        logger.error(f"User {user_id} not found for upgrade.")
+        return None

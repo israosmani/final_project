@@ -33,11 +33,11 @@ services:
     volumes:
       - ./:/myapp/
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     networks:
       - app-network
-    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"]
+    # Command removed alembic migration temporarily for troubleshooting
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
   nginx:
     image: nginx:latest
