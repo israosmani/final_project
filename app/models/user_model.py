@@ -17,6 +17,7 @@ class UserRole(Enum):
     AUTHENTICATED = "AUTHENTICATED"
     MANAGER = "MANAGER"
     ADMIN = "ADMIN"
+    PROFESSIONAL = "professional"
 
 
 class User(Base):
