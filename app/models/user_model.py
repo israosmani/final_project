@@ -8,6 +8,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
+from pydantic import HttpUrl
 
 class UserRole(Enum):
     """Enumeration of user roles within the application, stored as ENUM in the database."""
@@ -25,16 +26,16 @@ class User(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     nickname: Mapped[str] = Column(String(50), unique=True, nullable=False, index=True)
-    email: Mapped[str] = Column(String(255), unique=True, nullable=False, index=True)
+    email: Mapped[str] = Column(String(320), unique=True, nullable=False, index=True)
     first_name: Mapped[str] = Column(String(100), nullable=True)
     last_name: Mapped[str] = Column(String(100), nullable=True)
     bio: Mapped[str] = Column(String(500), nullable=True)
-    profile_picture_url: Mapped[str] = Column(String(255), nullable=True)
-    linkedin_profile_url: Mapped[str] = Column(String(255), nullable=True)
-    github_profile_url: Mapped[str] = Column(String(255), nullable=True)
+    profile_picture_url: Mapped[str] = Column(String(512), nullable=True)
+    linkedin_profile_url: Mapped[str] = Column(String(512), nullable=True)
+    github_profile_url: Mapped[str] = Column(String(512), nullable=True)
     location: Mapped[str] = Column(String(255), nullable=True)  # New field for user location
     role: Mapped[UserRole] = Column(SQLAlchemyEnum(UserRole, name='UserRole', create_constraint=True), nullable=False)
-    is_professional: Mapped[bool] = Column(Boolean, default=False, index=True)  # Added index for frequent queries
+    is_professional: Mapped[bool] = Column(Boolean, default=False)
     professional_status_updated_at: Mapped[datetime] = Column(DateTime(timezone=True), nullable=True)
     last_login_at: Mapped[datetime] = Column(DateTime(timezone=True), nullable=True)
     failed_login_attempts: Mapped[int] = Column(Integer, default=0)
@@ -64,4 +65,4 @@ class User(Base):
     def update_professional_status(self, status: bool):
         """Updates the professional status and logs the update time."""
         self.is_professional = status
-        self.professional_status_updated_at = datetime.utcnow()  # Updated to use UTC time
+        self.professional_status_updated_at = datetime.now(timezone.utc)  # Using UTC time for consistency
