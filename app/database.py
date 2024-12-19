@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
-
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
+from app.database import Database
 Base = declarative_base()
 
 class Database:
@@ -23,3 +25,12 @@ class Database:
         if cls._session_factory is None:
             raise ValueError("Database not initialized. Call `initialize()` first.")
         return cls._session_factory
+
+async def get_db() -> AsyncSession:
+    """
+    Dependency that provides an async SQLAlchemy database session.
+    Closes the session automatically after the request ends.
+    """
+    session_factory = Database.get_session_factory()
+    async with session_factory() as session:
+        yield session
