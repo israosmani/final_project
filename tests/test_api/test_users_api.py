@@ -56,4 +56,31 @@ async def test_update_user_profile_access_denied(async_client, other_user, user_
     response = await async_client.put(f"/users/{other_user.id}", json=updated_data, headers=headers)
     assert response.status_code == 403
 
-# Continue with other existing test cases...
+@pytest.mark.asyncio
+async def test_update_user_profile_invalid_data_access_denied(async_client, user_token, verified_user):
+    updated_data = {"email": "newemail@example.com"}
+    headers = {"Authorization": f"Bearer {user_token}"}
+    response = await async_client.put(f"/users/{verified_user.id}", json=updated_data, headers=headers)
+    assert response.status_code == 403
+
+@pytest.mark.asyncio
+async def test_update_user_profile_valid_data_access_allowed(async_client, verified_user, user_token):
+    updated_data = {"email": "updatedemail@example.com"}
+    headers = {"Authorization": f"Bearer {user_token}"}
+    response = await async_client.put(f"/users/{verified_user.id}", json=updated_data, headers=headers)
+    assert response.status_code == 200
+    assert response.json()["email"] == updated_data["email"]
+
+@pytest.mark.asyncio
+async def test_list_users_unauthorized_access(async_client, user_token):
+    response = await async_client.get("/users/", headers={"Authorization": f"Bearer {user_token}"})
+    assert response.status_code == 403
+
+@pytest.mark.asyncio
+async def test_delete_user_invalid_id(async_client, admin_token):
+    invalid_user_id = "invalid-id"
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    response = await async_client.delete(f"/users/{invalid_user_id}", headers=headers)
+    assert response.status_code == 404
+    assert "User not found" in response.json().get("detail", "")
+
