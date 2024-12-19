@@ -1,8 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
-from app.database import Database
+
 Base = declarative_base()
 
 class Database:
