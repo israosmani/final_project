@@ -25,7 +25,8 @@ class EmailService:
         subject_map = {
             'email_verification': "Verify Your Account",
             'password_reset': "Password Reset Instructions",
-            'account_locked': "Account Locked Notification"
+            'account_locked': "Account Locked Notification",
+            'profile_upgrade': "Congratulations! You've Been Upgraded to Professional Status"  # New subject for profile upgrade
         }
 
         if email_type not in subject_map:
@@ -43,3 +44,16 @@ class EmailService:
             "verification_url": verification_url,
             "email": user.email
         }, 'email_verification')
+
+    async def send_profile_upgrade_email(self, user: User):
+        """
+        Send an email to the user when their profile is upgraded to professional status.
+        
+        :param user: The user whose profile has been upgraded.
+        """
+        if not self.smtp_client:
+            return
+        await self.send_user_email({
+            "name": user.first_name,
+            "email": user.email
+        }, 'profile_upgrade')
