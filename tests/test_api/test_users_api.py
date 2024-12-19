@@ -84,3 +84,27 @@ async def test_delete_user_invalid_id(async_client, admin_token):
     assert response.status_code == 404
     assert "User not found" in response.json().get("detail", "")
 
+@pytest.mark.asyncio
+async def test_update_user_no_changes(async_client, verified_user, user_token):
+    updated_data = {"nickname": verified_user.nickname}  # No changes to nickname
+    headers = {"Authorization": f"Bearer {user_token}"}
+    response = await async_client.put(f"/users/{verified_user.id}", json=updated_data, headers=headers)
+    assert response.status_code == 200
+    assert response.json()["nickname"] == verified_user.nickname
+
+@pytest.mark.asyncio
+async def test_update_user_invalid_field(async_client, verified_user, user_token):
+    updated_data = {"invalid_field": "new_value"}  # Invalid field that should not exist
+    headers = {"Authorization": f"Bearer {user_token}"}
+    response = await async_client.put(f"/users/{verified_user.id}", json=updated_data, headers=headers)
+    assert response.status_code == 400  # Bad request
+    assert "detail" in response.json()  # Assuming the API returns an error message
+
+@pytest.mark.asyncio
+async def test_update_user_empty_data(async_client, verified_user, user_token):
+    updated_data = {}  # No data provided for update
+    headers = {"Authorization": f"Bearer {user_token}"}
+    response = await async_client.put(f"/users/{verified_user.id}", json=updated_data, headers=headers)
+    assert response.status_code == 400  # Bad request, since no data is provided
+    assert "detail" in response.json()  # Assuming the API returns an error message
+
